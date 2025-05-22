@@ -1,0 +1,32 @@
+pip install pyspark
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.appName("Word Count").getOrCreate()
+sc = spark.sparkContext
+
+
+dataRDD = sc.textFile("/content/sample_data/data")
+>>> dataRDD.count()
+>>>dataRDD.getNumPartitions()
+
+
+
+mapRDD = dataRDD.flatMap(lambda a : a.split(' '))
+
+
+
+>>> keybyword2 = mapRDD.map(lambda word : (word,1))
+>>> for line in keybyword2.collect():
+...     print(line)
+
+>>> counts = keybyword2.reduceByKey(lambda a,b : a+b).sortByKey()
+>>> for line in counts.collect():
+...     print(line)
+
+sortbyval = counts.sortBy(lambda a : -a[1]).collect()
+>>> for line in sortbyval:
+...     print(line)
+
+>>> counts.saveAsTextFile("/content/sample_data/pyspark1")
+>>> sc.parallelize(sortbyval).saveAsTextFile("/content/sample_data/pyspark2")
+
+
